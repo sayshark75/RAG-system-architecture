@@ -6,7 +6,7 @@ class Settings(BaseSettings):
 
     # Ollama Config
     OLLAMA_BASE_URL: str = "http://localhost:11434"
-    LLM_MODEL: str = "qwen2.5:3b"
+    LLM_MODEL: str = "qwen3.5:4b"
     EMBEDDING_MODEL: str = "nomic-embed-text"
 
     # RAG Config
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 100
     RETRIEVAL_K: int = 3
-    SCORE_THRESHOLD: int = 0.6
+    SCORE_THRESHOLD: float = 0.6
 
     class Config:
         env_file = ".env"

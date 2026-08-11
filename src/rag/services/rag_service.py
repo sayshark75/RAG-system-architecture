@@ -22,7 +22,10 @@ class RAGService:
 
         # 2. Initialize LLM via Ollama
         self.llm = ChatOllama(
-            base_url=settings.OLLAMA_BASE_URL, model=settings.LLM_MODEL, temperature=0.1
+            base_url=settings.OLLAMA_BASE_URL,
+            model=settings.LLM_MODEL,
+            temperature=0.1,
+            reasoning=False,
         )
 
         # 3. Text Splitter Strategy
@@ -43,16 +46,21 @@ class RAGService:
     def ingest_directory(self) -> int:
         """Reads all PDFs from documents directory and stores vector embeddings."""
         if not os.path.exists(settings.DOCUMENTS_DIR):
+            print("No ./documents directory found, creating one...")
             os.makedirs(settings.DOCUMENTS_DIR, exist_ok=True)
             return 0
-
+        print("initialized PDF loader")
         loader = PyPDFDirectoryLoader(settings.DOCUMENTS_DIR)
+        print("Loading PDF pages as list of documents...")
         raw_docs = loader.load()
+        print(f"Loaded the list of documents {len(raw_docs)} ")
 
         if not raw_docs:
+            print("No raw documents found...")
             return 0
-
+        print("recursively splitting the documents into chunks...")
         chunks = self.text_splitter.split_documents(raw_docs)
+        print("converting all chunks into embeddings and storing into the vector db...")
         self.vector_store.add_documents(chunks)
         return len(chunks)
 
@@ -65,13 +73,17 @@ class RAGService:
         return len(chunks)
 
     def query(self, question: str) -> dict[str, Any]:
+        print(
+            f"getting a retriver for the database query for top {settings.RETRIEVAL_K} chunks."
+        )
         """Performs similarity retrieval and executes LCEL RAG chain."""
         retriever = self.vector_store.as_retriever(
             search_kwargs={
                 "k": settings.RETRIEVAL_K,
-                "score_threshold": settings.SCORE_THRESHOLD,
             }
         )
+
+        print("the template is ready to serve information to LLM")
 
         # System Prompt definition
         prompt_template = """You are a helpful and precise assistant. Answer the user's question based strictly on the provided context.
@@ -85,12 +97,17 @@ Question:
 
 Answer:"""
 
+        print("generating a prompt object instance...")
         prompt = ChatPromptTemplate.from_template(prompt_template)
+        print(" retriving the docs relevant to the question")
 
         # Retrieve docs directly first so we can return metadata back to API client
         retrieved_docs = retriever.invoke(question)
 
+        print(f"found {len(retrieved_docs)} chunks...")
+
         # Build LCEL (LangChain Expression Language) Pipeline
+        print("On the rag chain pipeline")
         rag_chain = (
             {
                 "context": lambda x: self.format_docs(retrieved_docs),
@@ -102,7 +119,7 @@ Answer:"""
         )
 
         response_text = rag_chain.invoke(question)
-
+        print("Performed LCEL chain...")
         sources = [
             {"content": doc.page_content, "metadata": doc.metadata}
             for doc in retrieved_docs

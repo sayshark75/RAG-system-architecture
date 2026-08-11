@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Directories
+/chroma_db
+/documents
