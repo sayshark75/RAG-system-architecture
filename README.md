@@ -107,7 +107,7 @@ Follow these steps to get your RAG system up and running locally:
     it will detect the /documents directory, and load all the PDF documents and convert them into chunks and then make their embeddings then store it in the ChromaDB.
 
 4.  **Run the application**:
-    Start the FastAPI server. The `--reload` flag is useful for development as it automatically restarts the server on code changes.
+    Start the FastAPI server.
     ```bash
     uv run fastapi dev ./src/rag/main.py
     ```

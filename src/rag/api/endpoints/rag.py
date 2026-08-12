@@ -21,16 +21,16 @@ async def query_rag(request: QueryRequest):
 
 @router.post("/ingest", response_model=IngestResponse)
 async def upload_and_ingest(file: UploadFile = File(...)):
+    print(f"Ingesting {file.filename} ...")
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-
+    print("checking the /document directory...")
     # Save incoming file to local documents folder
     os.makedirs(settings.DOCUMENTS_DIR, exist_ok=True)
     file_path = os.path.join(settings.DOCUMENTS_DIR, file.filename)
-
+    print("opening file handlers...")
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-
     try:
         chunks_count = rag_service.ingest_single_file(file_path)
         return IngestResponse(

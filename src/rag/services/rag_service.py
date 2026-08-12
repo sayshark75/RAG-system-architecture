@@ -66,9 +66,13 @@ class RAGService:
 
     def ingest_single_file(self, file_path: str) -> int:
         """Ingests a single uploaded file."""
+        print("Loading the PDF file...")
         loader = PyPDFLoader(file_path)
         raw_docs = loader.load()
+        print(f"found {len(raw_docs)} pages in the file...")
+        print("generating the chunks...")
         chunks = self.text_splitter.split_documents(raw_docs)
+        print(f"Adding {len(chunks)} chunks to the vector store...")
         self.vector_store.add_documents(chunks)
         return len(chunks)
 
