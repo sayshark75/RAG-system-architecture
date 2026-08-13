@@ -15,54 +15,61 @@ Empower your applications with a robust, private, and lightning-fast local RAG s
 
 ## The Strategic "Why"
 
-> Traditional RAG deployments often wrestle with data privacy concerns, prohibitive cloud costs, and complex setup processes, hindering rapid development and local experimentation. Relying on external APIs can introduce latency, data sovereignty issues, and unpredictable expenses, making it challenging to build truly secure and responsive AI applications.
+> In an era of burgeoning information and increasingly sophisticated AI, the challenge of grounding Large Language Models (LLMs) in specific, up-to-date, and verifiable domain knowledge remains paramount. Generic LLMs often suffer from hallucination, a lack of institutional context, or an inability to access private, proprietary data. This leads to unreliable outputs, eroding user trust and hindering the adoption of AI in critical business processes.
 
-This project offers a complete, local-first RAG architecture, leveraging FastAPI and LangChain to provide a secure, cost-effective, and highly performant solution right on your machine. It simplifies the complex orchestration of LLMs, vector stores, and data ingestion, allowing developers to focus on innovation rather than infrastructure.
+This project offers a robust, local RAG (Retrieval Augmented Generation) system designed to overcome these limitations. By integrating cutting-edge Python frameworks like FastAPI and LangChain with a modular architecture, it enables developers to build AI applications that retrieve relevant information from custom knowledge bases, synthesize answers with an LLM, and deliver accurate, contextually rich responses. This system provides a superior outcome by ensuring data privacy, reducing operational costs associated with cloud-based LLM APIs, and significantly improving the factual accuracy and relevance of AI-generated content.
 
 ## Key Features
 
-- ⚡️ **Local-First Processing**: Keep your sensitive data private and minimize latency by running the entire RAG pipeline securely on your own infrastructure.
-- 🚀 **High-Performance API**: Built with FastAPI for blazing-fast, asynchronous request handling, providing a clean and efficient RESTful interface for your RAG system.
-- 🧩 **Modular LangChain Pipeline**: Easily customize and extend your Retrieval Augmented Generation workflow with LangChain's powerful and flexible orchestration capabilities.
-- 🛠️ **Simplified Setup**: Get up and running in minutes with clear installation steps, modern dependency management using `uv`, and a well-structured project.
-- 🔄 **Scalable Design**: Architected for extensibility, allowing seamless integration of new LLMs, vector stores, data loaders, and retrieval strategies as your needs evolve.
-- 📈 **Developer-Friendly**: Features automatic API documentation (Swagger UI/ReDoc) and a clear codebase, making development and collaboration smooth and efficient.
+✨ **Local-First Architecture**: Run your RAG system entirely on-premises, ensuring data privacy and reducing reliance on external APIs.
+🚀 **High-Performance API**: Leverage FastAPI to build a blazing-fast and asynchronous API for seamless integration with any application.
+🧠 **Advanced RAG Orchestration**: Built on LangChain, providing flexible and powerful tools for document loading, splitting, embedding, retrieval, and LLM prompting.
+🛠️ **Modular & Extensible Design**: Easily swap out components like vector stores, embedding models, or LLMs to tailor the system to your specific needs.
+🌐 **Full-Stack Integration Ready**: Includes both `backend` (Python) and `frontend` (TypeScript) scaffolding for rapid full-stack application development.
+📈 **Scalable Knowledge Base**: Efficiently manage and query large volumes of unstructured data, transforming it into actionable insights.
 
 ## Technical Architecture
 
-This project leverages a modern Python tech stack to deliver a robust and efficient RAG system.
+This RAG system is built with a modern, modular approach, separating concerns between its core components for flexibility and scalability.
 
-| Technology    | Purpose                                   | Key Benefit                                                                                       |
-| :------------ | :---------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| **Python**    | Primary programming language              | Versatility, extensive AI/ML ecosystem, large community support                                   |
-| **FastAPI**   | Web framework for API endpoints           | High performance, asynchronous capabilities, automatic interactive API documentation              |
-| **LangChain** | LLM orchestration framework               | Simplifies complex RAG workflows, integrates various components (LLMs, vector stores, retrievers) |
-| **Uvicorn**   | ASGI server                               | Production-ready, fast server for running FastAPI applications                                    |
-| **uv**        | Modern Python package manager             | Extremely fast and reliable dependency resolution and package installation                        |
-| **Poetry**    | Dependency management & project structure | Ensures consistent project environments and simplifies package distribution                       |
+| Technology             | Purpose                                  | Key Benefit                                                              |
+| :--------------------- | :--------------------------------------- | :----------------------------------------------------------------------- |
+| **Python**             | Primary language for backend development | Extensive AI/ML ecosystem, readability, rapid development                |
+| **FastAPI**            | Web framework for the RAG API            | High performance, automatic OpenAPI documentation, type hints            |
+| **LangChain**          | Framework for RAG orchestration          | Simplified LLM application development, modularity, tooling              |
+| **Ollama / Llama.cpp** | Local LLM hosting (assumed)              | Offline inference, data privacy, cost-effectiveness                      |
+| **ChromaDB / FAISS**   | Local Vector Database (assumed)          | Efficient semantic search, low latency retrieval                         |
+| **TypeScript**         | Primary language for the frontend        | Type safety, improved developer experience, large ecosystem              |
+| **React / Next.js**    | Frontend framework (assumed)             | Component-based UI, efficient rendering, server-side rendering (Next.js) |
 
 ### Directory Structure
 
 ```
-RAG-system-architecture/
-├── 📁 src/
-│   ├── 📁 api/                      # FastAPI endpoints and API models
-│   │   └── 📄 endpoints.py
-│   ├── 📁 core/                     # Core configurations and utility functions
-│   │   └── 📄 config.py
-│   ├── 📁 ingestion/                # Data loading and processing for vector store population
-│   │   └── 📄 data_loader.py
-│   ├── 📁 rag_pipeline/             # LangChain-based RAG chain definition and components
-│   │   ├── 📄 chain.py
-│   │   └── 📄 prompt_templates.py
-│   ├── 📁 vector_store/             # Management of the vector database (e.g., Chroma, FAISS)
-│   │   └── 📄 store_manager.py
-│   └── 📄 main.py                   # Main FastAPI application entry point
-├── 📄 .gitignore                    # Specifies intentionally untracked files to ignore
-├── 📄 .python-version               # Defines the required Python version (e.g., via `pyenv`)
-├── 📄 pyproject.toml                # Project metadata and dependency definitions (Poetry)
-├── 📄 uv.lock                       # Lock file generated by `uv` for reproducible environments
-└── 📄 README.md                     # Project README file
+📁 RAG-system-architecture/
+├── .gitignore
+├── Readme.md
+├── 📁 backend/
+│   ├── 📄 main.py               # FastAPI application entry point
+│   ├── 📄 requirements.txt      # Python dependencies
+│   ├── 📁 app/
+│   │   ├── 📄 __init__.py
+│   │   ├── 📁 api/
+│   │   │   ├── 📄 v1/
+│   │   │   └── 📄 __init__.py
+│   │   ├── 📁 services/
+│   │   │   └── 📄 rag_service.py # Core RAG logic
+│   │   └── 📁 models/
+│   │       └── 📄 __init__.py
+│   ├── 📁 data/                 # Placeholder for document storage/embeddings
+│   └── 📄 .env.example          # Environment variables for backend
+├── 📁 frontend/
+│   ├── 📄 package.json          # Node.js dependencies
+│   ├── 📄 tsconfig.json         # TypeScript configuration
+│   ├── 📁 src/
+│   │   ├── 📄 App.tsx           # Main React component
+│   │   ├── 📁 components/       # UI components
+│   │   └── 📁 pages/            # Frontend routes
+│   └── 📄 .env.example          # Environment variables for frontend
 ```
 
 ## Operational Setup
