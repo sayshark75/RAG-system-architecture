@@ -42,36 +42,6 @@ This RAG system is built with a modern, modular approach, separating concerns be
 | **TypeScript**         | Primary language for the frontend        | Type safety, improved developer experience, large ecosystem              |
 | **React / Next.js**    | Frontend framework (assumed)             | Component-based UI, efficient rendering, server-side rendering (Next.js) |
 
-### Directory Structure
-
-```
-📁 RAG-system-architecture/
-├── .gitignore
-├── Readme.md
-├── 📁 backend/
-│   ├── 📄 main.py               # FastAPI application entry point
-│   ├── 📄 requirements.txt      # Python dependencies
-│   ├── 📁 app/
-│   │   ├── 📄 __init__.py
-│   │   ├── 📁 api/
-│   │   │   ├── 📄 v1/
-│   │   │   └── 📄 __init__.py
-│   │   ├── 📁 services/
-│   │   │   └── 📄 rag_service.py # Core RAG logic
-│   │   └── 📁 models/
-│   │       └── 📄 __init__.py
-│   ├── 📁 data/                 # Placeholder for document storage/embeddings
-│   └── 📄 .env.example          # Environment variables for backend
-├── 📁 frontend/
-│   ├── 📄 package.json          # Node.js dependencies
-│   ├── 📄 tsconfig.json         # TypeScript configuration
-│   ├── 📁 src/
-│   │   ├── 📄 App.tsx           # Main React component
-│   │   ├── 📁 components/       # UI components
-│   │   └── 📁 pages/            # Frontend routes
-│   └── 📄 .env.example          # Environment variables for frontend
-```
-
 ## Operational Setup
 
 ### Prerequisites
