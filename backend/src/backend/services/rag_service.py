@@ -1,7 +1,7 @@
 import os
 from typing import Any
 
-from backend.core.config import settings
+from backend.config.settings import settings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader
 from langchain_core.documents import Document
@@ -75,7 +75,7 @@ class RAGService:
         self.vector_store.add_documents(chunks)
         return len(chunks)
 
-    def query(self, question: str) -> dict[str, Any]:
+    async def query(self, question: str) -> dict[str, Any]:
         print(
             f"getting a retriver for the database query for top {settings.RETRIEVAL_K} chunks."
         )
@@ -105,7 +105,7 @@ Answer:"""
         print(" retriving the docs relevant to the question")
 
         # Retrieve docs directly first so we can return metadata back to API client
-        retrieved_docs = retriever.invoke(question)
+        retrieved_docs = await retriever.ainvoke(question)
 
         print(f"found {len(retrieved_docs)} chunks...")
 
@@ -121,7 +121,7 @@ Answer:"""
             | StrOutputParser()
         )
 
-        response_text = rag_chain.invoke(question)
+        response_text = await rag_chain.ainvoke(question)
         print("Performed LCEL chain...")
         sources = [
             {"content": doc.page_content, "metadata": doc.metadata}
