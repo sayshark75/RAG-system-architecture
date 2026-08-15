@@ -18,7 +18,7 @@ def copyFileUtil(file: UploadFile, file_path: str):
 
 @router.post("/query", response_model=QueryResponse)
 async def query_rag(request: QueryRequest):
-    result = await anyio.to_thread.run_sync(rag_service.query, request.question)
+    result = await rag_service.query(request.question)
     return result
 
 
