@@ -86,3 +86,11 @@ The following experiment compares the behavior with and without async APIs and w
 | `getting a retriever for the database query for top 5 chunks.`<br>`the template is ready to serve information to LLM`<br>`generating a prompt object instance...`<br>`retrieving the docs relevant to the question`<br><br>`Ingesting user-info-15-pages.pdf ...`<br>`checking the /document directory...`<br>`file path..../documents\user-info-15-pages.pdf`<br>`opening file handlers...`<br>`Loading the PDF file...`<br>`found 15 pages in the file...`<br>`generating the chunks...`<br>`Adding 70 chunks to the vector store...`<br><br>`found 5 chunks...`<br>`On the rag chain pipeline`<br>`▕ 127.0.0.1:61236 - "POST /api/v1/ingest HTTP/1.1" 200`<br>`Performed LCEL chain...`<br>`▕ 127.0.0.1:59313 - "POST /api/v1/query HTTP/1.1" 200` | `getting a retriever for the database query for top 5 chunks.`<br>`the template is ready to serve information to LLM`<br>`generating a prompt object instance...`<br>`retrieving the docs relevant to the question`<br>`found 5 chunks...`<br>`On the rag chain pipeline`<br>`Performed LCEL chain...`<br>`▕ 127.0.0.1:58672 - "POST /api/v1/query HTTP/1.1" 200`<br><br>`Ingesting user-info-15-pages.pdf ...`<br>`checking the /document directory...`<br>`file path..../documents\user-info-15-pages.pdf`<br>`opening file handlers...`<br>`Loading the PDF file...`<br>`found 15 pages in the file...`<br>`generating the chunks...`<br>`Adding 70 chunks to the vector store...`<br>`▕ 127.0.0.1:56151 - "POST /api/v1/ingest HTTP/1.1" 200` |
 
 **Observation:** In Run 1, the query and ingestion operations were able to make progress concurrently. In Run 2, without async APIs and worker-thread offloading, the blocking operations progressed sequentially.
+
+### Concurrency decision checklist
+
+- Is this function blocking?
+- Does it have an async version?
+- If not, should I offload it to a worker thread?
+- Is the workload I/O-bound or CPU-bound?
+- Is a thread enough, or do I need a queue/worker system?
