@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 def copyFileUtil(file: UploadFile, file_path: str):
-    with open(file, file_path, "wb") as buffer:
+    with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
 
@@ -32,6 +32,7 @@ async def upload_and_ingest(file: Annotated[UploadFile, File(...)]):
     # Save incoming file to local documents folder
     os.makedirs(settings.DOCUMENTS_DIR, exist_ok=True)
     file_path = os.path.join(settings.DOCUMENTS_DIR, file.filename)
+    print(f"file path...{file_path}")
     print("opening file handlers...")
     await anyio.to_thread.run_sync(copyFileUtil, file, file_path)
     chunks_count = await anyio.to_thread.run_sync(
