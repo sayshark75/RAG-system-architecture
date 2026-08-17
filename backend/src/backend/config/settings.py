@@ -9,12 +9,16 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "qwen3.5:4b"
     EMBEDDING_MODEL: str = "nomic-embed-text"
 
+    # Re-Ranker model config
+    RERANKER_MODEL: str = "BAAI/bge-reranker-v2-m3"
+
     # RAG Config
     DOCUMENTS_DIR: str = "./documents"
     CHROMA_PERSIST_DIR: str = "./chroma_db"
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 100
-    RETRIEVAL_K: int = 5
+    RETRIEVAL_K: int = 10
+    RERANK_K: int = 3
     SCORE_THRESHOLD: float = 0.6
 
     class Config:

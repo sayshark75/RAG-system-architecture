@@ -15,3 +15,13 @@ def ingest():
 @cli.command("test")
 def test():
     print("CLI - Ping - Pong ...")
+
+
+@cli.command("warmup")
+def warmup():
+
+    print("Loading reranker model...")
+
+    rag_service.warmup_reranker()
+
+    print("Reranker model is ready.")

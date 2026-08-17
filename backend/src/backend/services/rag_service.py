@@ -1,6 +1,7 @@
 import os
 from typing import Any
 
+import anyio
 from backend.config.settings import settings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader
@@ -10,6 +11,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sentence_transformers import CrossEncoder
 
 
 class RAGService:
@@ -37,6 +39,71 @@ class RAGService:
             persist_directory=settings.CHROMA_PERSIST_DIR,
             embedding_function=self.embeddings,
         )
+
+        self.reranker = None
+
+    def warmup_reranker(self):
+
+        print("Warming up reranker...")
+
+        reranker = self.get_reranker()
+
+        reranker.predict(
+            [
+                [
+                    "What is risk management?",
+                    "Risk management is the process of identifying and managing risks.",
+                ]
+            ]
+        )
+
+        print("Reranker warmup completed.")
+
+    def get_reranker(self):
+
+        if self.reranker is None:
+            print("Loading reranker model...")
+
+            self.reranker = CrossEncoder(settings.RERANKER_MODEL)
+
+            print("Reranker model is ready.")
+
+        return self.reranker
+
+    def rerank(
+        self,
+        question: str,
+        documents: list[Document],
+    ) -> list[Document]:
+
+        reranker = self.get_reranker()
+
+        pairs = [[question, document.page_content] for document in documents]
+
+        scores = reranker.predict(pairs)
+
+        ranked_documents = sorted(
+            zip(documents, scores),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+
+        print("\n========== RERANKING ==========")
+
+        for rank, (document, score) in enumerate(
+            ranked_documents,
+            start=1,
+        ):
+            print(
+                f"\nRank: {rank}"
+                f"\nScore: {score:.4f}"
+                f"\nPage: {document.metadata.get('page')}"
+                f"\nContent: {document.page_content[:200]}..."
+            )
+
+        print("===============================\n")
+
+        return [document for document, score in ranked_documents[: settings.RERANK_K]]
 
     def format_docs(self, docs: list[Document]):
         """Formats retrieved documents into a single text block."""
@@ -85,7 +152,6 @@ class RAGService:
                 "k": settings.RETRIEVAL_K,
             }
         )
-
         print("the template is ready to serve information to LLM")
 
         # System Prompt definition
@@ -107,13 +173,23 @@ Answer:"""
         # Retrieve docs directly first so we can return metadata back to API client
         retrieved_docs = await retriever.ainvoke(question)
 
-        print(f"found {len(retrieved_docs)} chunks...")
+        print(f"Here are the retrived documents: {retrieved_docs}")
+
+        print(f"Vector search found {len(retrieved_docs)} candidate chunks...")
+
+        reranked_docs = await anyio.to_thread.run_sync(
+            self.rerank,
+            question,
+            retrieved_docs,
+        )
+
+        print(f"Reranker selected {len(reranked_docs)} chunks...")
 
         # Build LCEL (LangChain Expression Language) Pipeline
         print("On the rag chain pipeline")
         rag_chain = (
             {
-                "context": lambda x: self.format_docs(retrieved_docs),
+                "context": lambda x: self.format_docs(reranked_docs),
                 "question": RunnablePassthrough(),
             }
             | prompt
@@ -124,8 +200,11 @@ Answer:"""
         response_text = await rag_chain.ainvoke(question)
         print("Performed LCEL chain...")
         sources = [
-            {"content": doc.page_content, "metadata": doc.metadata}
-            for doc in retrieved_docs
+            {
+                "content": doc.page_content,
+                "metadata": doc.metadata,
+            }
+            for doc in reranked_docs
         ]
 
         return {"question": question, "answer": response_text, "sources": sources}

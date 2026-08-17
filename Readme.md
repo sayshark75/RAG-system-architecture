@@ -50,7 +50,19 @@ cd RAG-system-architecture
    RETRIEVAL_K=3
    ```
 
-3. **Start the FastAPI server:**
+3. **Run CLI command to check if cli commands working:**
+
+   ```bash
+   python ./src/backend/main.py test
+   ```
+
+   - Run this command to get the reranker model from hugging-face.
+
+   ```bash
+   python ./src/backend/main.py warmup
+   ```
+
+4. **Start the FastAPI server:**
 
    ```bash
    uv run fastapi dev ./src/backend/main.py
@@ -94,3 +106,13 @@ The following experiment compares the behavior with and without async APIs and w
 - If not, should I offload it to a worker thread?
 - Is the workload I/O-bound or CPU-bound?
 - Is a thread enough, or do I need a queue/worker system?
+
+### 📅 17 Aug 2026
+
+**Update: Added Re-Ranker**
+
+Using the Hugging Face re-ranker model `BAAI/bge-reranker-v2-m3`.
+
+- Re-ranking is an additional step in our RAG query workflow. After the vector database retrieves the most likely relevant chunks, the re-ranker evaluates each query–chunk pair and assigns a relevance score. It then re-orders the retrieved chunks based on their relevance to the query before passing the top-ranked chunks to the LLM.
+
+- Unlike vector search, which uses embedding similarity to retrieve candidate chunks, the re-ranker directly evaluates the relationship between the question and each retrieved chunk. This helps improve the relevance of the context provided to the LLM.
