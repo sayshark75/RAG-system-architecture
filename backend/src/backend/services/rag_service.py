@@ -177,7 +177,7 @@ Answer:"""
 
         print(f"Vector search found {len(retrieved_docs)} candidate chunks...")
 
-        reranked_docs = await anyio.to_thread.run_sync(
+        reranked_docs: list[Document] = await anyio.to_thread.run_sync(
             self.rerank,
             question,
             retrieved_docs,
