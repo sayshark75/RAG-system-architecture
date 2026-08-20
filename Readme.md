@@ -117,10 +117,6 @@ Using the Hugging Face re-ranker model `BAAI/bge-reranker-v2-m3`.
 
 - Unlike vector search, which uses embedding similarity to retrieve candidate chunks, the re-ranker directly evaluates the relationship between the question and each retrieved chunk. This helps improve the relevance of the context provided to the LLM.
 
-### 📅 20 Aug 2026
-
-Added a Reranking flow:
-
 - First, we retrieve chunks from the vector database based on vector similarity between the user's query and the stored chunks.
 - In the reranking stage, we use a dedicated reranker model to evaluate each retrieved chunk based on its relevance to the user's query.
 - The reranker assigns a relevance score to each chunk. Chunks that are more relevant to the query receive higher scores, while less relevant chunks receive lower scores.
